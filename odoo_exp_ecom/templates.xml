@@ -1,4 +1,23 @@
 <openerp>
+    <data noupdate="1">
+        <!-- add 2 fields -->
+        <record id="x_sale_field_1" model="ir.model.fields">
+            <field name="name">x_middle_name</field>
+            <field name="field_description">Middle name</field>
+            <field name="ttype">char</field>
+            <field name="state">manual</field>
+            <field name="model_id" ref="sale.model_sale_order"/>
+        </record>
+
+        <record id="x_sale_field_2" model="ir.model.fields">
+            <field name="name">x_job</field>
+            <field name="field_description">Job</field>
+            <field name="ttype">char</field>
+            <field name="state">manual</field>
+            <field name="model_id" ref="sale.model_sale_order"/>
+        </record>
+    </data>
+
     <data>
         <template id="product_inherits" inherit_id="website_sale.product">
             <xpath expr="//form[@class='js_add_cart_variants']" position="after">
@@ -23,6 +42,46 @@
               Contact us to get a quotation
             </a>
         </template>
+
+        <record id="website_sale.extra_info_option" model="ir.ui.view">
+            <field name="active">True</field>
+        </record>
+
+        <template id="extra_info_odooexp" inherit_id="website_sale.extra_info">
+            <xpath expr="//form" position="replace">
+                <form class="form-horizontal" method="post">
+                  <div class="form-group">
+                    <label for="f1" class="col-sm-2 control-label">Middle Name</label>
+                    <div class="col-sm-10">
+                      <input type="text" class="form-control" name="x_middle_name" id="f1" placeholder="Field not required"/>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="f2" class="col-sm-2 control-label"><span class='text-danger'>* </span>Job Position</label>
+                    <div class="col-sm-10">
+                      <input type="text" class="form-control" name="x_job"  id="f2" required="True" placeholder="Field required"/>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="col-sm-offset-2 col- sm-10">
+                      <button name="post_values" type="submit" class="btn btn-default">Continue</button>
+                    </div>
+                  </div>
+                </form>
+            </xpath>
+        </template>
+
+        <record id="view_order_form_inherit" model="ir.ui.view">
+            <field name="name">odoo.exp.sale.order.form.inherit</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+              <xpath expr="//group/field[@name='client_order_ref']" position="after">
+                  <field name="x_job" />
+                  <field name="x_middle_name" />
+              </xpath>
+            </field>
+        </record>
 
     </data>
 </openerp>
