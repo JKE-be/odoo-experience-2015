@@ -1,7 +1,11 @@
 <openerp>
     <data>
 
-
+        <template id="product_inherits" inherit_id="website_sale.product">
+            <xpath expr="//form[@class='js_add_cart_variants']" position="after">
+              <h4>NET Weight: <span t-field="product.weight_net"/></h4>
+            </xpath>
+        </template>
 
     </data>
 </openerp>
