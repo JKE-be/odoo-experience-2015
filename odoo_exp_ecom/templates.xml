@@ -83,5 +83,23 @@
             </field>
         </record>
 
+        <record id="move_x_middle_name_on_note" model="ir.actions.server">
+            <field name="name">Odoo Experience: Move x_middle_name on note</field>
+            <field name="model_id" ref="website_sale.model_sale_order"/>
+            <field name="condition">True</field>
+            <field name="type">ir.actions.server</field>
+            <field name="state">code</field>
+            <field name="code">if not object.note and object.x_middle_name: object.write({ 'note': object.x_middle_name })</field>
+        </record>
+
+        <record id="rule_move_x_middle_name_on_note" model="base.action.rule">
+            <field name="name">Odoo Experience: Rule to move x_middle_name on note </field>
+            <field name="model_id" ref="website_sale.model_sale_order"/>
+            <field name="sequence">50</field>
+            <field name="kind">on_create_or_write</field>
+            <field name="act_user_id" ref="base.user_root"/>
+            <field name="server_action_ids" eval="[(6, 0, [ref('move_x_middle_name_on_note')])]"/>
+        </record>
+
     </data>
 </openerp>
