@@ -61,7 +61,7 @@
         <xpath expr="//li[@id='step20']" position="before">
           <li t-att-class="(step==15 and 'text-primary') or 'text-muted'" id="step15">
             <t t-if="step&gt;15 and step&lt;50">
-              <a href="/website/action/chekout-details"  class='text-success'>
+              <a href="/website/action/checkout-details"  class='text-success'>
                 Checkout Details<span class="chevron"></span>
               </a>
             </t>
@@ -79,7 +79,22 @@
           <field name="website_published" eval="True"/>
           <field name="website_path">checkout-details</field>
           <field name="code">
-response = request.website.render("odoo_exp_ecom.checkout_details_view")
+cr, uid, context, pool = request.cr, request.uid, request.context, request.registry
+order = request.website.sale_get_order()
+
+if request.params.get('post_values'):
+    post = request.params
+    order.write({'x_need_catalog': bool(post.get('order_with_catalog'))})
+    for line in order.order_line:
+        if 'Giftable' in [c.name for c in line.product_id.public_categ_ids]:
+            line.write({
+              'x_is_gift': bool(post.get('%s-gift' % line.id)),
+              'x_msg_gift': bool(post.get('%s-gift' % line.id)) and post.get('%s-gift_msg' % line.id) or '',
+            })
+    response = request.redirect("/shop/checkout")
+else:
+  values = dict(order=order)
+  response = request.website.render("odoo_exp_ecom.checkout_details_view", values)
           </field>
         </record>
 
@@ -97,12 +112,12 @@ response = request.website.render("odoo_exp_ecom.checkout_details_view")
                           <div class="form-group">
                              <div class="checkbox">
                                 <label>
-                                  <input type="checkbox" name="order_with_catalog" /> I would like to receive the last catalog with my order
+                                  <input type="checkbox" name="order_with_catalog" t-att-checked="order.x_need_catalog or False"/> I would like to receive the last catalog with my order
                                 </label>
                              </div>
                           </div>
                         </div>
-                        <t t-foreach="request.website.sale_get_order().order_line" t-as="line">
+                        <t t-foreach="order.order_line" t-as="line">
                           <t t-if="'Giftable' in [c.name for c in line.product_id.public_categ_ids]">
                             <div  class="row bg-info" style="padding:15px;margin-top:30px;border-radius:15px;">
                               <div class="col-xs-6 col-sm-3">
@@ -115,20 +130,20 @@ response = request.website.render("odoo_exp_ecom.checkout_details_view")
                                 <div class="form-group">
                                  <div class="checkbox">
                                     <label>
-                                      <input type="checkbox"  t-att-name="'%s-%s' % (line.id, 'gift')" /> It's a gift
+                                      <input type="checkbox"  t-att-name="'%s-%s' % (line.id, 'gift')" t-att-checked="line.x_is_gift or False"/> It's a gift
                                     </label>
                                   </div>
                                 </div>
                                 <div class="form-group">
                                   <label>Message</label>
-                                  <textarea placeholder="Enter here the text to write on the gift" class="form-control" t-att-name="'%s-%s' % (line.id, 'qty')"></textarea>
+                                  <textarea placeholder="Enter here the text to write on the gift" class="form-control" t-att-name="'%s-%s' % (line.id, 'gift_msg')"><t t-if="line.x_is_gift" t-esc="line.x_msg_gift"/></textarea>
                                 </div>
                               </div>
                             </div>
                           </t>
                         </t>
                         <div class="form-group" style="margin-top:16px">
-                          <button name="post_values" type="submit" class="btn btn-primary pull-right">Continue</button>
+                          <input name="post_values" type="submit" class="btn btn-primary pull-right" value="Continue" />
                         </div>
                     </form>
                   </div>
