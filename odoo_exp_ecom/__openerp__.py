@@ -14,6 +14,7 @@
     'depends': ['website_sale', 'website_crm'],
     'data': [
         'templates.xml',
+        'templates2.xml',
     ],
 
 }

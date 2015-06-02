@@ -1,0 +1,140 @@
+<openerp>
+    <data noupdate="1">
+        <record id="x_sale_order_need_catalog" model="ir.model.fields">
+            <field name="name">x_need_catalog</field>
+            <field name="field_description">Need Catalog</field>
+            <field name="ttype">boolean</field>
+            <field name="state">manual</field>
+            <field name="model_id" ref="sale.model_sale_order"/>
+        </record>
+        <record id="x_sale_order_line_is_gift" model="ir.model.fields">
+            <field name="name">x_is_gift</field>
+            <field name="field_description">Is a gift</field>
+            <field name="ttype">boolean</field>
+            <field name="state">manual</field>
+            <field name="model_id" ref="sale.model_sale_order_line"/>
+        </record>
+        <record id="x_sale_order_line_gift_msg" model="ir.model.fields">
+            <field name="name">x_msg_gift</field>
+            <field name="field_description">Message on Gift</field>
+            <field name="ttype">text</field>
+            <field name="state">manual</field>
+            <field name="model_id" ref="sale.model_sale_order_line"/>
+        </record>
+    </data>
+
+    <data>
+
+        <!-- add me in this group : sale.order.form.editable.list-->
+
+        <record model="ir.ui.view" id="odoo_exp_view_order_inherit">
+            <field name="name">sale.order.odooexp.inherit</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='order_line']/tree/field[@name='price_unit']" position="after">
+                    <field name="x_is_gift" />
+                </xpath>
+
+                <xpath expr="//group/field[@name='client_order_ref']" position="after">
+                  <field name="x_need_catalog"/>
+                </xpath>
+
+                <xpath expr="//field[@name='order_line']/form//field[@name='product_id']" position="after">
+                    <field name="x_is_gift" />
+                    <field name="x_msg_gift" attrs="{'invisible': [('x_is_gift', '=', False)]}"/>
+                </xpath>
+            </field>
+        </record>
+
+      <record id="categ_giftable" model="product.public.category">
+         <field name="name">Giftable</field>
+      </record>
+
+      <template id="cart_inherits" inherit_id="website_sale.cart" priority="1000">
+          <xpath expr="//a[@href='/shop/checkout']" position="attributes">
+            <attribute name="href">/website/action/checkout-details</attribute>
+          </xpath>
+      </template>
+
+      <template id="checkout_details" name="Checkout Details" inherit_id="website_sale.wizard_checkout">
+        <xpath expr="//li[@id='step20']" position="before">
+          <li t-att-class="(step==15 and 'text-primary') or 'text-muted'" id="step15">
+            <t t-if="step&gt;15 and step&lt;50">
+              <a href="/website/action/chekout-details"  class='text-success'>
+                Checkout Details<span class="chevron"></span>
+              </a>
+            </t>
+            <t t-if="not (step&gt;15 and step&lt;50)">
+                Checkout Details<span class="chevron"></span>
+            </t>
+          </li>
+        </xpath>
+      </template>
+
+      <record id="action_checkout_detail" model="ir.actions.server">
+          <field name="name">Checkout Details</field>
+          <field name="model_id" ref="base.model_ir_actions_server"/>
+          <field name="state">code</field>
+          <field name="website_published" eval="True"/>
+          <field name="website_path">checkout-details</field>
+          <field name="code">
+response = request.website.render("odoo_exp_ecom.checkout_details_view")
+          </field>
+        </record>
+
+        <template id="checkout_details_view">
+          <t t-call="website.layout">
+              <div id="wrap">
+                <div class="container oe_website_sale">
+                  <t t-call="website_sale.wizard_checkout">
+                    <t t-set="step" t-value="15"/>
+                  </t>
+                  <h1 class="mb32">Checkout details</h1>
+                  <div class="row">
+                    <form method="post" class="col-md-9">
+                        <div class="row bg-info" style="padding:15px;margin-top:30px;border-radius:15px;">
+                          <div class="form-group">
+                             <div class="checkbox">
+                                <label>
+                                  <input type="checkbox" name="order_with_catalog" /> I would like to receive the last catalog with my order
+                                </label>
+                             </div>
+                          </div>
+                        </div>
+                        <t t-foreach="request.website.sale_get_order().order_line" t-as="line">
+                          <t t-if="'Giftable' in [c.name for c in line.product_id.public_categ_ids]">
+                            <div  class="row bg-info" style="padding:15px;margin-top:30px;border-radius:15px;">
+                              <div class="col-xs-6 col-sm-3">
+                                  <h4 t-esc="line.product_id.name"/>
+                                  <br/>
+                                  <span t-field="line.product_id.image"
+                                          t-field-options='{"widget": "image", "class": "img-responsive img-rounded"}'/>
+                              </div>
+                              <div class="col-xs-6">
+                                <div class="form-group">
+                                 <div class="checkbox">
+                                    <label>
+                                      <input type="checkbox"  t-att-name="'%s-%s' % (line.id, 'gift')" /> It's a gift
+                                    </label>
+                                  </div>
+                                </div>
+                                <div class="form-group">
+                                  <label>Message</label>
+                                  <textarea placeholder="Enter here the text to write on the gift" class="form-control" t-att-name="'%s-%s' % (line.id, 'qty')"></textarea>
+                                </div>
+                              </div>
+                            </div>
+                          </t>
+                        </t>
+                        <div class="form-group" style="margin-top:16px">
+                          <button name="post_values" type="submit" class="btn btn-primary pull-right">Continue</button>
+                        </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+          </t>
+        </template>
+    </data>    
+</openerp>
