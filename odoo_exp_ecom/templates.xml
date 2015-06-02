@@ -1,11 +1,21 @@
 <openerp>
     <data>
-
         <template id="product_inherits" inherit_id="website_sale.product">
             <xpath expr="//form[@class='js_add_cart_variants']" position="after">
               <h4>NET Weight: <span t-field="product.weight_net"/></h4>
             </xpath>
-        </template>
 
+            <xpath expr="//form" position="attributes">
+                <attribute name="t-att-style">'Price on demand' in [c.name for c in product.public_categ_ids] and 'display:none' or False</attribute>
+            </xpath>
+
+            <xpath expr="//form" position="before">
+              <span t-att-style="'Price on demand' not in [c.name for c in product.public_categ_ids] and 'display:none' or False">
+                <t t-call="odoo_exp_ecom.button_price_on_demand">
+                    <t t-set="product" t-value="product"/>
+                </t>
+              </span>
+            </xpath>
+        </template>
     </data>
 </openerp>
