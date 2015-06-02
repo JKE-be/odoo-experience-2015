@@ -151,5 +151,24 @@ else:
               </div>
           </t>
         </template>
+
+        <record id="old_url_product_6" model="ir.attachment">
+            <field name="type">binary</field>
+            <field name="url">/product/6</field>
+            <field name="name">/shop/product/6</field>
+        </record>
+
+        <record id="old_url_product_7" model="ir.attachment">
+            <field name="type">binary</field>
+            <field name="url">/product/7</field>
+            <field name="name">/shop/product/ipad-mini-7</field>
+        </record>
+
+        <record id="old_url_product_8" model="ir.attachment">
+            <field name="type">binary</field>
+            <field name="url">/product/8</field>
+            <field name="name">/shop/product/8</field>
+        </record>
+
     </data>    
 </openerp>
