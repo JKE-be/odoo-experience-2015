@@ -11,7 +11,7 @@
     'website': "https://www.odoo.com",
     'category': 'Uncategorized',
     'version': '0.1',
-    'depends': ['website_sale'],
+    'depends': ['website_sale', 'website_crm'],
     'data': [
         'templates.xml',
     ],
