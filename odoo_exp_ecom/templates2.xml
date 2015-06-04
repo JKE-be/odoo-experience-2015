@@ -79,18 +79,20 @@
           <field name="website_published" eval="True"/>
           <field name="website_path">checkout-details</field>
           <field name="code">
-cr, uid, context, pool = request.cr, request.uid, request.context, request.registry
 order = request.website.sale_get_order()
 
 if request.params.get('post_values'):
     post = request.params
-    order.write({'x_need_catalog': bool(post.get('order_with_catalog'))})
+    values = {'x_need_catalog': bool(post.get('order_with_catalog'))}
+    values['order_line'] = []
     for line in order.order_line:
         if 'Giftable' in [c.name for c in line.product_id.public_categ_ids]:
-            line.write({
+            l = {
               'x_is_gift': bool(post.get('%s-gift' % line.id)),
               'x_msg_gift': bool(post.get('%s-gift' % line.id)) and post.get('%s-gift_msg' % line.id) or '',
-            })
+            }
+            values['order_line'].append((1,line.id, l))
+    order.write(values)
     response = request.redirect("/shop/checkout")
 else:
   values = dict(order=order)
