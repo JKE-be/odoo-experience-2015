@@ -43,6 +43,13 @@
             </a>
         </template>
 
+        <template id="description_auto_complete" inherit_id="website_crm.contactus_form">
+          <xpath expr="//textarea[@name='description']" position="inside">
+            <t t-if="request.params.get('description')"><t t-esc="request.params['description']"/></t>
+          </xpath>
+        </template>
+
+
         <record id="website_sale.extra_info_option" model="ir.ui.view">
             <field name="active">True</field>
         </record>
